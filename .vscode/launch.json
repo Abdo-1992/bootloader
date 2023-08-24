@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug (GDB)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceFolder}/build/bootloader.elf",
+            "configFiles": [
+                "${workspaceFolder}/config/ti_ek-tm4c123gxl.cfg"
+            ],
+            "preLaunchTask": "Build" // Optional: if you have a build task defined
+        }
+    ]
+}

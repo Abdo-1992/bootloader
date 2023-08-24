@@ -1,0 +1,153 @@
+@startuml
+
+class Bootloader {
+  - verifier: Verifier
+  - services: List<Service>
+  - communicationProtocols: List<CommunicationProtocol>
+  + initialize()
+  + verifyUser()
+  + getService(String serviceName)
+  + callService(Service service)
+  + handleRequest()
+}
+
+class Verifier {
+  - authorizedUsers: List<User>
+  + verify(user: User): Boolean
+}
+
+class User {
+  - credentials: String
+  + provide_credentials(): String
+}
+
+class Service {
+  - category: Category
+  + execute()
+}
+
+enum Category {
+  CATEGORY_1,
+  CATEGORY_2,
+  CATEGORY_3
+}
+
+class Category1Service extends Service {
+  + readImageVersion()
+  + readImageDateOfDeploying()
+  + readImageSize()
+  + readImageHash()
+}
+
+class Category2Service extends Service {
+  + readFromFlash(address: Integer, byte_count: Integer)
+  + calculateImageHash()
+  + verifyImage()
+}
+
+class Category3Service extends Service {
+  + writeImage()
+  + jumpToFirmware()
+}
+
+class ImageAttributes {
+  - version: String
+  - dateOfDeploying: String
+  - size: Int
+  - hash: String
+  + get_attribute(attribute_name: String): Any
+  + set_attribute(attribute_name: String, value: Any)
+}
+
+interface CommunicationProtocol {
+  + sendMessage(String message)
+  + receiveMessage(): ServiceRequest
+}
+
+class MQTTProtocol implements CommunicationProtocol {
+}
+
+class CoAPProtocol implements CommunicationProtocol {
+}
+
+class OTASupport {
+  - update_url: String
+  - update_size: Integer
+  + check_for_update(): Boolean
+  + download_update(): File
+  + apply_update(): Boolean
+}
+
+class FlashMemory {
+  + read_from_address(address: Integer, byte_count: Integer): Bytes
+  + write_to_address(address: Integer, data: Bytes)
+}
+
+class MCU_Drivers {
+}
+
+class FlashDriver {
+  + read(address: Integer, length: Integer): Bytes
+  + write(address: Integer, data: Bytes)
+  + erase(address: Integer)
+}
+
+class RAMDriver {
+  + read(address: Integer, length: Integer): Bytes
+  + write(address: Integer, data: Bytes)
+}
+
+class ClockDriver {
+  + setClockFrequency(frequency: Integer)
+  + getClockFrequency(): Integer
+}
+
+class GPIODriver {
+  + setPinMode(pin: Integer, mode: Mode)
+  + readPin(pin: Integer): State
+  + writePin(pin: Integer, state: State)
+}
+
+class UARTDriver {
+  + send(data: Bytes)
+  + receive(): Bytes
+}
+
+class TimerDriver {
+  + startTimer(duration: Integer)
+  + stopTimer()
+}
+
+class ADCDriver {
+  + readChannel(channel: Integer): Integer
+}
+
+class PowerManagementDriver {
+  + enterSleepMode()
+  + enterDeepSleepMode()
+  + wakeUp()
+}
+
+' Relationships
+Bootloader --> MCU_Drivers
+MCU_Drivers o-- FlashDriver
+MCU_Drivers o-- RAMDriver
+MCU_Drivers o-- ClockDriver
+MCU_Drivers o-- GPIODriver
+MCU_Drivers o-- UARTDriver
+MCU_Drivers o-- TimerDriver
+MCU_Drivers o-- ADCDriver
+MCU_Drivers o-- PowerManagementDriver
+
+
+User --> Verifier
+Bootloader --> Verifier
+Bootloader --> Service
+Bootloader --> CommunicationProtocol
+Category1Service --> ImageAttributes
+Category2Service --> ImageAttributes
+Category2Service --> FlashMemory
+Category3Service --> FlashMemory
+Category3Service --> OTASupport
+
+@enduml
