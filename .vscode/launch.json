@@ -11,7 +11,8 @@
             "configFiles": [
                 "${workspaceFolder}/config/ti_ek-tm4c123gxl.cfg"
             ],
-            "preLaunchTask": "Build" // Optional: if you have a build task defined
+            "preLaunchTask": "Build", // Optional: if you have a build task defined
+            "showDevDebugOutput": "raw" //to see verbose GDB transactions in Debug console
         }
     ]
 }

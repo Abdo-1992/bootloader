@@ -1,20 +1,18 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include "inc/hw_memmap.h"
-#include "gpio.h"
-#include "sysctl.h"
+#include "bootloader.h"
+#include "main.h"
 
-int
-main(void)
+int main(void)
 {
-
+    bootloader bootApplication;
     while(1)
     {
-        
+
     }
 }
 
 
-extern "C" void _exit(int status) {
+void _exit(int status) {
     while(1) { }
 }

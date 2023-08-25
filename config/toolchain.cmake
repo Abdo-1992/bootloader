@@ -18,3 +18,6 @@ set(CMAKE_AR arm-none-eabi-ar CACHE FILEPATH "Archiver")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -nostdlib -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -nostdlib -g")
 
+#define gcc compiler
+add_compile_definitions(gcc PART_TM4C123GH6PM) # some code code are projected with ifdef(gcc)
+

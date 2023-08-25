@@ -10,14 +10,13 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 project(Bootloader)
 
 
-#define gcc compiler
-add_compile_definitions(gcc) # some code code are projected with ifdef(gcc)
 
 # List all source files
 set(SOURCES
     src/main.cpp
     src/startup_gcc.c
     src/bootloader/bootloader.cpp
+    src/drivers/driverlib/MCU_Drivers.cpp
     src/drivers/driverlib/gpio.c
     src/drivers/driverlib/aes.c
     src/drivers/driverlib/cpu.c
@@ -38,7 +37,7 @@ set(SOURCES
 )
 
 # Include directories based on the proposed folder structure
-include_directories(src/drivers/driverlib/inc include/bootloader src/drivers/driverlib src/drivers/ include/)
+include_directories(src/drivers/driverlib/inc include/bootloader include/drivers src/drivers/driverlib src/drivers/ include/)
 
 # The libs directory to link
 link_directories(${CMAKE_SOURCE_DIR}/libs)
