@@ -6,6 +6,7 @@
         "hw_memmap.h": "c",
         "debug.h": "c",
         "interrupt.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "uartstdio.h": "c"
     }
 }

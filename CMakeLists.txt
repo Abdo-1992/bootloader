@@ -23,6 +23,7 @@ set(SOURCES
     src/drivers/driverlib/crc.c
     src/drivers/driverlib/i2c.c
     src/drivers/driverlib/uart.c
+    src/drivers/driverlib/uartstdio.c
     src/drivers/driverlib/flash.c
     src/drivers/driverlib/timer.c
     src/drivers/driverlib/eeprom.c

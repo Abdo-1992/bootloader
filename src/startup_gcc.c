@@ -269,6 +269,9 @@ ResetISR(void)
         *pui32Dest++ = *pui32Src++;
     }
 
+    // Disable the interrupt;
+    CPUcpsid();
+
     //
     // Zero fill the bss segment.
     //

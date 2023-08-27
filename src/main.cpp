@@ -6,6 +6,7 @@
 int main(void)
 {
     bootloader bootApplication;
+    bootApplication.BootloaderInitialize();
     while(1)
     {
 

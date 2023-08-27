@@ -2,6 +2,20 @@
 #define __MCU_DRIVERS_H__
 #include <stdint.h>
 
+enum Led{
+    red   = 2,  //PF1
+    blue  = 4,  //PF2
+    green = 8,  //PF3
+};
+
+enum Switch{
+  leftSwitch  = 16,   //PF4 
+};
+
+enum State{
+    off,    
+    on,
+};
 
 enum MCU{
     adc,
@@ -27,6 +41,7 @@ enum MCU{
 class MCU_Drivers
 {
 private:
+    uint64_t SystickTime{};
     uint32_t SupportedPeripheral{};
     /*Flash group*/
     bool MCU_flash_init();
@@ -41,6 +56,9 @@ private:
 public:
     bool MCU_init_drivers();
     bool MCU_is_device_supported(MCU);
+    void MCU_turn_Led(Led, State);
+    uint64_t MCU_get_Systick(void);
+    State MCU_get_switch(Switch);
     MCU_Drivers();
     ~MCU_Drivers();
 };
