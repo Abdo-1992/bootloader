@@ -130,5 +130,53 @@
 <td>-frtti, -fno-rtti</td>
 <td>Symbols related to RTTI (Run-Time Type Information).</td>
 </tr>
+<tr>
+<td>.ARM.exidx Section</td>
+<td>N/A</td>
+<td>Compiler-specific, Runtime library</td>
+<td>.ARM.exidx</td>
+<td>N/A</td>
+<td>Used in ARM architectures for exception handling and stack unwinding.</td>
+</tr>
+<tr>
+<td>.ARM.attributes</td>
+<td>N/A</td>
+<td>Compiler-specific, Runtime library</td>
+<td>.ARM.attributes</td>
+<td>N/A</td>
+<td>Stores various attributes of the code like the targeted ARM architecture, ABI version, etc.</td>
+</tr>
+<tr>
+<td>.ARM.debug_frame</td>
+<td>N/A</td>
+<td>Compiler-specific, Debugging tools</td>
+<td>.ARM.debug_frame</td>
+<td>N/A</td>
+<td>Similar to .eh_frame, but used for debugging purposes. Contains information for unwinding the stack frame.</td>
+</tr>
+<tr>
+<td>.ARM.constants</td>
+<td>N/A</td>
+<td>Compiler-specific</td>
+<td>.ARM.constants</td>
+<td>N/A</td>
+<td>Sometimes used to store constant data that is frequently accessed.</td>
+</tr>
+<tr>
+<td>.ARM.extab</td>
+<td>N/A</td>
+<td>Compiler-specific, Runtime library</td>
+<td>.ARM.extab</td>
+<td>N/A</td>
+<td>Contains the actual unwinding data for each function.</td>
+</tr>
+<tr>
+<td>ARM EABI Symbols (__aeabi_*)</td>
+<td>__aeabi_memclr, __aeabi_memcpy, __aeabi_uidiv, __aeabi_idivmod</td>
+<td>ARM EABI</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>ARM-specific symbols for compatibility between different compilers and libraries targeting ARM.</td>
+</tr>
 </tbody>
 </table>
