@@ -1,0 +1,134 @@
+<table border='1'>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Typical Symbols</th>
+<th>Implementing Library</th>
+<th>Section</th>
+<th>Compiler/Linker Flags</th>
+<th>Remarks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stack Unwind Information</td>
+<td>_Unwind_Resume, _Unwind_RaiseException</td>
+<td>Runtime library (libsupc++)</td>
+<td>.eh_frame</td>
+<td>-fexceptions, -fno-unwind-tables</td>
+<td>Often necessary for C++ exception handling.</td>
+</tr>
+<tr>
+<td>Standard C++ Library</td>
+<td>std::vector, std::string</td>
+<td>libstdc++ (GCC), libc++ (Clang)</td>
+<td>N/A</td>
+<td>-lstdc++, -stdlib=libc++</td>
+<td>Standard C++ library features.</td>
+</tr>
+<tr>
+<td>Dynamic Memory Allocation</td>
+<td>operator new, operator delete</td>
+<td>Runtime library</td>
+<td>N/A</td>
+<td>-fno-exceptions</td>
+<td>Essential for dynamic memory operations.</td>
+</tr>
+<tr>
+<td>RTTI (Run-Time Type Information)</td>
+<td>typeid, dynamic_cast</td>
+<td>Runtime library (libsupc++ for GCC)</td>
+<td>N/A</td>
+<td>-frtti, -fno-rtti</td>
+<td>Used for type identification.</td>
+</tr>
+<tr>
+<td>Thread Support</td>
+<td>std::thread</td>
+<td>libstdc++ (GCC), libc++ (Clang)</td>
+<td>N/A</td>
+<td>-pthread</td>
+<td>Multi-threading support.</td>
+</tr>
+<tr>
+<td>File I/O</td>
+<td>std::fstream</td>
+<td>libstdc++ (GCC), libc++ (Clang)</td>
+<td>N/A</td>
+<td>-lstdc++, -stdlib=libc++</td>
+<td>Used for file operations.</td>
+</tr>
+<tr>
+<td>C++ Exceptions</td>
+<td>throw, catch</td>
+<td>Runtime library (libsupc++ for GCC)</td>
+<td>N/A</td>
+<td>-fexceptions, -fno-exceptions</td>
+<td>Exception handling.</td>
+</tr>
+<tr>
+<td>Atomic Operations</td>
+<td>std::atomic</td>
+<td>libstdc++ (GCC), libc++ (Clang)</td>
+<td>N/A</td>
+<td>-latomic</td>
+<td>Atomic operations for concurrent programming.</td>
+</tr>
+<tr>
+<td>Math Functions</td>
+<td>std::sqrt, std::sin</td>
+<td>libstdc++ (GCC), libc++ (Clang)</td>
+<td>N/A</td>
+<td>-lm</td>
+<td>Mathematical operations.</td>
+</tr>
+<tr>
+<td>Program Termination</td>
+<td>exit()</td>
+<td>C standard library (libc)</td>
+<td>.fini</td>
+<td>-nostartfiles, -nostdlib</td>
+<td>For program exit and cleanup.</td>
+</tr>
+<tr>
+<td>Startup Code</td>
+<td>_start, __libc_start_main, __static_initialization_and_destruction_0</td>
+<td>C standard library (libc), compiler-specific</td>
+<td>.init, .text</td>
+<td>-nostartfiles, -nostdlib</td>
+<td>Startup code to initialize the runtime environment.</td>
+</tr>
+<tr>
+<td>Built-in Functions</td>
+<td>__builtin_memcpy, __builtin_clz</td>
+<td>Compiler intrinsic</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Compiler intrinsics for optimized operations.</td>
+</tr>
+<tr>
+<td>GCC Stack Protection</td>
+<td>__stack_chk_fail, __stack_chk_guard</td>
+<td>Compiler-specific</td>
+<td>N/A</td>
+<td>-fstack-protector, -fno-stack-protector</td>
+<td>For stack smashing protection.</td>
+</tr>
+<tr>
+<td>Global Object Handling</td>
+<td>__cxa_atexit, __dso_handle</td>
+<td>Runtime library (libsupc++)</td>
+<td>N/A</td>
+<td>-fno-use-cxa-atexit</td>
+<td>Used for registering destructors of global objects.</td>
+</tr>
+<tr>
+<td>Type Information</td>
+<td>__typeinfo_name, __dynamic_cast</td>
+<td>Runtime library (libsupc++)</td>
+<td>N/A</td>
+<td>-frtti, -fno-rtti</td>
+<td>Symbols related to RTTI (Run-Time Type Information).</td>
+</tr>
+</tbody>
+</table>
