@@ -731,7 +731,7 @@ UARTgets(char *pcBuf, uint32_t ui32Len)
         // the buffer.  If the end of the buffer has been reached then all
         // additional characters are ignored until a newline is received.
         //
-        if(ui32Count < ui32Len)
+        if(0)//(ui32Count < ui32Len)
         {
             //
             // Store the character in the caller supplied buffer.
@@ -758,7 +758,7 @@ UARTgets(char *pcBuf, uint32_t ui32Len)
     //
     // Send a CRLF pair to the terminal to end the line.
     //
-    UARTwrite("\r\n", 2);
+    //UARTwrite("\r\n", 2);
 
     //
     // Return the count of int8_ts in the buffer, not counting the trailing 0.
@@ -1711,6 +1711,10 @@ UARTStdioIntHandler(void)
     }
 }
 #endif
+
+void UARTputc(uint8_t c){
+    UARTCharPut(g_ui32Base, c);
+}
 
 //*****************************************************************************
 //

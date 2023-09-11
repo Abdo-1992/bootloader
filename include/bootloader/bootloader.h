@@ -8,7 +8,7 @@ class bootloader
 private:
     uint8_t* StartAppAddr   ;
     uint64_t systemTime     ;
-    MCU_Drivers McuDrivers  ;
+    MCU_Drivers& McuDrivers{mcu_drivers} ;
 
 public:
     bootloader();

@@ -14,9 +14,11 @@ set(CMAKE_AR arm-none-eabi-ar CACHE FILEPATH "Archiver")
 #-fomit-frame-pointer
 #-nostdlib
 #-fno-exceptions
+#-fno-rtti
 #-g (for dubug)
+#-fno-use-cxa-atexit to remove "Dynamic Shared Object Handling	__dso_handle"
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -nostdlib -g")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -nostdlib -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -nostdlib -fno-rtti -fno-use-cxa-atexit -g")
 
 #define gcc compiler
 add_compile_definitions(gcc PART_TM4C123GH6PM) # some code code are projected with ifdef(gcc)

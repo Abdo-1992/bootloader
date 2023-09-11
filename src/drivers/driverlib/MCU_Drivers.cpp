@@ -1,20 +1,15 @@
 #include "MCU_Drivers.h"
-#include "gpio.h"
-#include "sysctl.h"
-#include "flash.h"
-#include "uart.h"
-#include "interrupt.h"
-#include "pin_map.h"
-#include "hw_memmap.h"
-#include "hw_ints.h"
-#include "uartstdio.h"
-#include "systick.h"
+
 
 static void GPIOF_Handler(void);
-static void UART2Handler(void);
 static void SystickHandler(void);
+static void UART2_Handler(void);
 
-static volatile uint64_t SystickTime_ms = 0;
+extern "C" void UARTStdioIntHandler(void);
+
+
+static uint64_t SystickTime_ms = 0;
+MCU_Drivers mcu_drivers{};
 
 bool MCU_Drivers::MCU_flash_init()
 {
@@ -25,11 +20,11 @@ bool MCU_Drivers::MCU_flash_init()
 
 bool MCU_Drivers::MCU_interrupt_init()
 {
-    IntMasterEnable();    
+    IntMasterEnable();
     UARTIntClear(UART2_BASE,(UART_INT_RX|UART_INT_TX));
     GPIOIntClear(GPIO_PORTF_BASE,leftSwitch);
     GPIOIntRegister(GPIO_PORTF_BASE,GPIOF_Handler);
-    UARTIntRegister(UART2_BASE,UART2Handler);
+    UARTIntRegister(UART2_BASE,UART2_Handler);
     SysTickIntRegister(SystickHandler);
     SysTickIntEnable();
     SysTickEnable();
@@ -41,9 +36,11 @@ bool MCU_Drivers::MCU_gpio_init()
 {
     if(!MCU_is_device_supported(gpio))
         return false;    
-    uint8_t output_pins = GPIO_PIN_1 + GPIO_PIN_2 + GPIO_PIN_3;
-    uint8_t input_pins = GPIO_PIN_4;
-    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, output_pins);
+    uint8_t output_pins_led  = red + green + blue;
+    uint8_t output_pins_bluetooth = bluetooth_state;
+    uint8_t input_pins = leftSwitch;
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, output_pins_led);
+    GPIOPinTypeGPIOOutput(GPIO_PORTC_BASE, output_pins_bluetooth);
     GPIODirModeSet(GPIO_PORTF_BASE, input_pins, GPIO_DIR_MODE_IN);
     GPIOPadConfigSet(GPIO_PORTF_BASE, input_pins, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
     GPIOIntEnable(GPIO_PORTF_BASE, input_pins);
@@ -58,9 +55,18 @@ void MCU_Drivers::MCU_turn_Led(Led led, State state){
     GPIOPinWrite(GPIO_PORTF_BASE, led, state);
 }
 
+void MCU_Drivers::MCU_send_message(const char *pcBuf, uint32_t ui32Len){
+    UARTwrite(pcBuf, ui32Len);
+}
+
 State MCU_Drivers::MCU_get_switch(Switch sw){
     State value = static_cast<State>(GPIOPinRead(GPIO_PORTF_BASE,sw));
     return value;
+}
+
+bool MCU_Drivers::MCU_bluetooth_connected()
+{
+    return GPIOPinRead(GPIO_PORTC_BASE, bluetooth_state);
 }
 
 bool MCU_Drivers::MCU_sysctl_init()
@@ -71,6 +77,8 @@ bool MCU_Drivers::MCU_sysctl_init()
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
     while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF));
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF));    
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
     while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOD));
     SysCtlPeripheralEnable(SYSCTL_PERIPH_UART2);
@@ -84,10 +92,9 @@ bool MCU_Drivers::MCU_uart_init()
     GPIOPinConfigure(GPIO_PD6_U2RX);
     GPIOPinConfigure(GPIO_PD7_U2TX);
     GPIOPinTypeUART(GPIO_PORTD_BASE, (GPIO_PIN_6|GPIO_PIN_7));
-    GPIOPadConfigSet(GPIO_PORTD_BASE, (GPIO_PIN_6|GPIO_PIN_7), GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
+    GPIOPadConfigSet(GPIO_PORTD_BASE, (GPIO_PIN_6|GPIO_PIN_7), GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD);
     UARTClockSourceSet(UART2_BASE, UART_CLOCK_PIOSC);
-    UARTStdioConfig(2, 9600, SysCtlClockGet());
-
+    UARTStdioConfig(2, 38400, SysCtlClockGet());
     return true;
 }
 
@@ -110,7 +117,13 @@ bool MCU_Drivers::MCU_init_drivers(){
     return true;
 }
 
-uint64_t MCU_get_Systick(){
+void MCU_Drivers::MCU_delay_ms(uint64_t ms){
+    uint64_t timeout = MCU_get_Systick() + ms;
+    while(timeout - MCU_get_Systick());
+}
+
+uint64_t MCU_Drivers::MCU_get_Systick(void)
+{
     return SystickTime_ms;
 }
 
@@ -129,11 +142,12 @@ void GPIOF_Handler(void)
     GPIOIntClear(GPIO_PORTF_BASE,leftSwitch);
 }
 
-void UART2Handler(void)
+void UART2_Handler(void)
 {
-    UARTIntClear(UART2_BASE,(UART_INT_RX|UART_INT_TX));    
+    // UARTStdioIntHandler();
 }
 
 void SystickHandler(){
     SystickTime_ms++;
 }
+

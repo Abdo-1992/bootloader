@@ -7,6 +7,26 @@
         "debug.h": "c",
         "interrupt.h": "c",
         "gpio.h": "c",
-        "uartstdio.h": "c"
+        "uartstdio.h": "c",
+        "hw_types.h": "c",
+        "sstream": "cpp",
+        "array": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "ranges": "cpp",
+        "*.tcc": "cpp",
+        "ostream": "cpp",
+        "stdbool.h": "c",
+        "stdarg.h": "c",
+        "hw_uart.h": "c",
+        "sysctl.h": "c",
+        "uart.h": "c",
+        "chrono": "cpp",
+        "random": "cpp",
+        "limits": "cpp"
     }
 }

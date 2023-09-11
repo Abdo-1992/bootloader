@@ -34,6 +34,7 @@ set(SOURCES
     src/drivers/driverlib/watchdog.c
     src/drivers/driverlib/hibernate.c
     src/drivers/driverlib/interrupt.c
+    libs/HC05/HC05.cpp
     # ... add all other source files
 )
 

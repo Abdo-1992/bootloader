@@ -1,6 +1,16 @@
 #ifndef __MCU_DRIVERS_H__
 #define __MCU_DRIVERS_H__
 #include <stdint.h>
+#include "gpio.h"
+#include "sysctl.h"
+#include "flash.h"
+#include "uart.h"
+#include "interrupt.h"
+#include "pin_map.h"
+#include "hw_memmap.h"
+#include "hw_ints.h"
+#include "uartstdio.h"
+#include "systick.h"
 
 enum Led{
     red   = 2,  //PF1
@@ -10,6 +20,12 @@ enum Led{
 
 enum Switch{
   leftSwitch  = 16,   //PF4 
+};
+
+enum Bluetooth{
+    bluetooth_Tx      = GPIO_PIN_6,//PD6 (Microcontroller Rx)
+    bluetooth_rx      = GPIO_PIN_7,//PD7 (Microcontroller Tx)
+    bluetooth_state   = GPIO_PIN_7,//PC6 
 };
 
 enum State{
@@ -57,10 +73,15 @@ public:
     bool MCU_init_drivers();
     bool MCU_is_device_supported(MCU);
     void MCU_turn_Led(Led, State);
+    void MCU_send_message(const char *pcBuf, uint32_t ui32Len);
+    void MCU_delay_ms(uint64_t);
     uint64_t MCU_get_Systick(void);
     State MCU_get_switch(Switch);
+    bool MCU_bluetooth_connected();
     MCU_Drivers();
     ~MCU_Drivers();
 };
+
+extern MCU_Drivers mcu_drivers;
 
 #endif

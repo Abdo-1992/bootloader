@@ -9,13 +9,13 @@ bootloader::~bootloader()
 {
 }
 
-#include "hw_ints.h"
-#include "interrupt.h"
+
 void bootloader::BootloaderInitialize()
 {
     McuDrivers.MCU_init_drivers();
     while(1){
-
+        McuDrivers.MCU_send_message("hello",5);
+        McuDrivers.MCU_delay_ms(1000);
     }
 }
 /*

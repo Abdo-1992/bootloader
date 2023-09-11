@@ -44,14 +44,14 @@ extern "C"
 // the transmit and receive buffers respectively.
 //
 //*****************************************************************************
-#define UART_BUFFERED
+#undef UART_BUFFERED
 
 #ifdef UART_BUFFERED
 #ifndef UART_RX_BUFFER_SIZE
-#define UART_RX_BUFFER_SIZE     128
+#define UART_RX_BUFFER_SIZE     10
 #endif
 #ifndef UART_TX_BUFFER_SIZE
-#define UART_TX_BUFFER_SIZE     1024
+#define UART_TX_BUFFER_SIZE     10
 #endif
 #endif
 
@@ -67,6 +67,7 @@ extern unsigned char UARTgetc(void);
 extern void UARTprintf(const char *pcString, ...);
 extern void UARTvprintf(const char *pcString, va_list vaArgP);
 extern int UARTwrite(const char *pcBuf, uint32_t ui32Len);
+void UARTputc(uint8_t c);
 #ifdef UART_BUFFERED
 extern int UARTPeek(unsigned char ucChar);
 extern void UARTFlushTx(bool bDiscard);
