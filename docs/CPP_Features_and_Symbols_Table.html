@@ -1,4 +1,6 @@
-<table border='1'>
+
+<!-- saved from url=(0091)file:///home/abdo/Workspace/Development/bootloader/docs/CPP_Features_and_Symbols_Table.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"></head><body><table border="1">
     <thead>
     <tr>
     <th>Feature</th>
@@ -210,5 +212,32 @@
     <td>N/A</td>
     <td>ARM-specific symbols for compatibility between different compilers and libraries targeting ARM.</td>
     </tr>
-    </tbody>
-    </table>
+    <tr>
+    <td>Global Constructors/Destructors	</td>
+    <td>__ctors_start__, __ctors_end__, __dtors_start__, __dtors_end__</td>
+    <td>Runtime library (libsupc++)</td>
+    <td>.ctors, .dtors	</td>
+    <td>-nostartfiles	</td>
+    <td>Related to global/static object construction and destruction.
+
+</td>
+    </tr><tr>
+    <td>Program Entry	</td>
+    <td>_start, __libc_init_array, __libc_fini_array	</td>
+    <td>C Runtime Library (libc)	</td>
+    <td>.text	</td>
+    <td>-nostartfiles	</td>
+    <td>Entry point and C library initialization.
+
+</td>
+    </tr><tr>
+    <td>Exception Handling	</td>
+    <td>_Unwind_Resume, __gxx_personality_v0	</td>
+    <td>C++ Standard Library	</td>
+    <td>.eh_frame	</td>
+    <td>-fexceptions, -funwind-tables	</td>
+    <td>Related to C++ exception handling.
+
+</td>
+    </tr></tbody>
+    </table></body></html>
