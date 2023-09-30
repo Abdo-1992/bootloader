@@ -1,8 +1,10 @@
 #include "bootloader.h"
+#include "HC05.h"
 
 bootloader::bootloader()
 {
-
+    systemTime = 0;
+    StartAppAddr = nullptr;
 }
 
 bootloader::~bootloader()
@@ -13,8 +15,9 @@ bootloader::~bootloader()
 void bootloader::BootloaderInitialize()
 {
     McuDrivers.MCU_init_drivers();
+    HC05 bluetooth{}; 
     while(1){
-        McuDrivers.MCU_send_message("hello",5);
+        bluetooth.findBaud();
         McuDrivers.MCU_delay_ms(1000);
     }
 }

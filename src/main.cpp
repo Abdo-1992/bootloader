@@ -5,7 +5,7 @@
 
 int main(void)
 {
-    bootloader bootApplication;
+    bootloader bootApplication{};
     bootApplication.BootloaderInitialize();
     while(1)
     {
@@ -17,3 +17,4 @@ int main(void)
 void _exit(int status) {
     while(1) { }
 }
+

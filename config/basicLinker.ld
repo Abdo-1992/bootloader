@@ -55,11 +55,20 @@ SECTIONS
 
     .init : AT(ADDR(.text) + SIZEOF(.text))
     {
-        *(.init*)        
+        *(.init)
         . = ALIGN(4);
     } > FLASH
 
-    .data : AT(ADDR(.init) + SIZEOF(.init))
+    .init_array :
+    {
+        __init_array_flash_start = LOADADDR(.init_array);
+        __init_array_start = .;
+        KEEP (*(SORT(.init_array.*)))
+        KEEP(*(.init_array))
+        __init_array_end = .;
+    } > FLASH
+
+    .data : AT(ADDR(.init_array) + SIZEOF(.init_array))
     {
         _data = .;
         _ldata = LOADADDR (.data);
@@ -72,18 +81,10 @@ SECTIONS
     .bss :
     {
         _bss = .;
-        __bss_start__ = .;
         *(.bss*)
         *(COMMON)
         _ebss = .;
-        __bss_end__ = .;
     } > SRAM
 
-    /DISCARD/ : {
-    *(.ARM.exidx) #This section provides an index of exception-handling table entries. It's essentially a list of function start addresses paired with pointers to their associated data in the ARM.extab section. It is crucial for stack unwinding during exception handling.
-    *(.ARM.extab) #This section provides the actual exception-handling table entries. It contains detailed information about how to unwind the stack for specific functions.
-    *(.eh_frame)  #This section is used for exception handling in C++ programs. It provides information needed to unwind the stack when exceptions are thrown.
-    *(finit)      #This section contains code that is executed after the main() function exits, or when exit() is called. It's used for cleanup operations and other post-main teardown code.
-    }
 
 }

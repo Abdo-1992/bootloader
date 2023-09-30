@@ -245,6 +245,31 @@ extern uint32_t _edata;
 extern uint32_t _bss;
 extern uint32_t _ebss;
 
+extern volatile void (*__init_array_start []) (void) ;
+extern volatile void (*__init_array_end []) (void) ;
+extern uint32_t __init_array_flash_start;  // Symbol for the start of .init_array in Flash
+
+
+void run_init_array(void)
+{
+  for (void (**p)() = __init_array_start; p != __init_array_end; ++p)
+    (*p)();
+}
+
+void initialize_init_array(void)
+{
+    uint32_t *flash_ptr = &__init_array_flash_start;
+    uint32_t *sram_ptr = &__init_array_start;
+    uint32_t *sram_end = &__init_array_end;
+
+    while (sram_ptr < sram_end)
+    {
+        *sram_ptr = *flash_ptr;
+        sram_ptr++;
+        flash_ptr++;
+    }
+}
+
 //*****************************************************************************
 //
 // This is the code that gets called when the processor first starts execution
@@ -268,7 +293,11 @@ ResetISR(void)
     {
         *pui32Dest++ = *pui32Src++;
     }
-    
+
+    //
+    // Copy the .init_array segment initializers from flash to SRAM.
+    //
+    initialize_init_array();
     //
     // Zero fill the bss segment.
     //
@@ -282,6 +311,8 @@ ResetISR(void)
           "        strlt   r2, [r0], #4\n"
           "        blt     zero_loop");
 
+    // Call C++ constructors
+    run_init_array();
     //
     // Enable the floating-point unit.  This must be done here to handle the
     // case where main() uses floating-point and the function prologue saves

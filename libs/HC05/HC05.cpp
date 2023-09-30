@@ -4,7 +4,7 @@
 
 static const char* BaudrateToString(unsigned long baud);
 
-HC05::HC05(int cmdPin, int statePin)
+HC05::HC05()
 {
     _bufsize = sizeof(_buffer)/sizeof(char);
 }

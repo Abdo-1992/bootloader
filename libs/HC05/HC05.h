@@ -24,7 +24,7 @@ class HC05
 {
 public:
     MCU_Drivers& McuDrivers{mcu_drivers} ;
-    HC05(int cmdPin, int statePin);
+    HC05();
     unsigned long findBaud();
     void setBaud(unsigned long baud);  // always no parity, one stop bit
     void write(uint8_t byte);

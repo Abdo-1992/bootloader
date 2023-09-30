@@ -39,7 +39,7 @@ set(SOURCES
 )
 
 # Include directories based on the proposed folder structure
-include_directories(src/drivers/driverlib/inc include/bootloader include/drivers src/drivers/driverlib src/drivers/ include/)
+include_directories(src/drivers/driverlib/inc include/bootloader include/drivers src/drivers/driverlib src/drivers/ include/ libs/HC05)
 
 # The libs directory to link
 link_directories(${CMAKE_SOURCE_DIR}/libs)
@@ -55,7 +55,7 @@ set_target_properties(bootloader PROPERTIES OUTPUT_NAME bootloader.elf)
 
 
 # Compiler and linker flags (Modify these based on your MCU and SDK specifics)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T${CMAKE_SOURCE_DIR}/config/basicLinker.ld -mfloat-abi=hard -mfpu=fpv4-sp-d16" )
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T${CMAKE_SOURCE_DIR}/config/basicLinker.ld -mfloat-abi=hard -mfpu=fpv4-sp-d16  -Wl,-Map=output.map" )
 
 # Define the custom command to run objcopy after building the bootloader target
 add_custom_command(
