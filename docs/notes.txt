@@ -1,0 +1,43 @@
+
+/*
+static void foo () __attribute__ ((constructor)); //a code that will be called before main.
+
+static void bar () __attribute__ ((destructor)); //a code that will be called before after main.
+ 
+static void
+foo ()
+{
+}
+ 
+static void
+bar ()
+{
+}
+
+*/
+
+Terminal-based Programs:
+Minicom: A text-based terminal emulator commonly used for serial port communication.
+Screen: A full-screen window manager that multiplexes a physical terminal.
+Picocom: Minimal dumb-terminal emulation program, often used for serial port interaction.
+Kermit: An older but reliable terminal emulation program with support for various protocols.
+GUI-based Programs:
+GtkTerm: A simple GTK+ terminal used to communicate with a serial port.
+Cutecom: A graphical serial terminal, aimed to be simple but very effective.
+PuTTY: Though known as an SSH client, it also supports serial port connections.
+You can install these via your package manager (like apt for Debian-based systems, yum for Red Hat-based systems, etc.).
+
+The __builtin_va_start() function is a GCC (GNU Compiler Collection) built-in 
+function that initializes a va_list object for variable argument list processing. 
+It is typically used in functions that accept a varying number of arguments, often 
+referred to as variadic functions. This built-in function is analogous to the 
+standard C library macro va_start. In C and C++, you can define a function that 
+takes a variable number of arguments by using an ellipsis (...) in its parameter 
+list. To handle these variable arguments, you usually use a series of 
+macros/functions defined in the <stdarg.h> header in C 
+or <cstdarg> in C++: va_start, va_arg, and va_end.
+
+
+
+
+

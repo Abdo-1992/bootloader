@@ -3,10 +3,8 @@
 
 static void GPIOF_Handler(void);
 static void SystickHandler(void);
-static void UART2_Handler(void);
-
+static void UART0_Handler(void);
 extern "C" void UARTStdioIntHandler(void);
-
 
 static uint64_t SystickTime_ms = 0;
 MCU_Drivers mcu_drivers{};
@@ -20,15 +18,16 @@ bool MCU_Drivers::MCU_flash_init()
 
 bool MCU_Drivers::MCU_interrupt_init()
 {
-    IntMasterEnable();
-    UARTIntClear(UART2_BASE,(UART_INT_RX|UART_INT_TX));
+    
+    UARTIntClear(UART0_BASE,UART_INT_RX|UART_INT_RT);
     GPIOIntClear(GPIO_PORTF_BASE,leftSwitch);
     GPIOIntRegister(GPIO_PORTF_BASE,GPIOF_Handler);
-    UARTIntRegister(UART2_BASE,UART2_Handler);
+    UARTIntRegister(UART0_BASE,UART0_Handler);
     SysTickIntRegister(SystickHandler);
     SysTickIntEnable();
     SysTickEnable();
-    SysTickPeriodSet(SysCtlClockGet()/1000);    
+    SysTickPeriodSet(SysCtlClockGet()/1000);
+    IntMasterEnable();
     return true;
 }
 
@@ -56,7 +55,7 @@ void MCU_Drivers::MCU_turn_Led(Led led, State state){
 }
 
 void MCU_Drivers::MCU_send_message(const char *pcBuf, uint32_t ui32Len){
-    UARTwrite(pcBuf, ui32Len);
+    UARTputBuff(pcBuf, ui32Len);
 }
 
 State MCU_Drivers::MCU_get_switch(Switch sw){
@@ -79,22 +78,20 @@ bool MCU_Drivers::MCU_sysctl_init()
     while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF));
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
     while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF));    
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
-    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOD));
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART2);
-    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_UART2));
 
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_UART0));
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOA));    
     return true;
 }
 
 bool MCU_Drivers::MCU_uart_init()
 {
-    GPIOPinConfigure(GPIO_PD6_U2RX);
-    GPIOPinConfigure(GPIO_PD7_U2TX);
-    GPIOPinTypeUART(GPIO_PORTD_BASE, (GPIO_PIN_6|GPIO_PIN_7));
-    GPIOPadConfigSet(GPIO_PORTD_BASE, (GPIO_PIN_6|GPIO_PIN_7), GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD);
-    UARTClockSourceSet(UART2_BASE, UART_CLOCK_PIOSC);
-    UARTStdioConfig(2, 38400, SysCtlClockGet());
+    GPIOPinConfigure(GPIO_PA0_U0RX);
+    GPIOPinConfigure(GPIO_PA1_U0TX);
+    GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1); 
+    UARTStdioConfig(0, 9600, SysCtlClockGet());
     return true;
 }
 
@@ -139,15 +136,20 @@ MCU_Drivers::~MCU_Drivers()
 
 void GPIOF_Handler(void)
 {
+    GPIOIntDisable(GPIO_PORTF_BASE,leftSwitch);
     GPIOIntClear(GPIO_PORTF_BASE,leftSwitch);
+    GPIOIntEnable(GPIO_PORTF_BASE, leftSwitch);
 }
 
-void UART2_Handler(void)
+void UART0_Handler(void)
 {
-    // UARTStdioIntHandler();
+    UARTStdioIntHandler();
 }
 
 void SystickHandler(){
     SystickTime_ms++;
 }
-
+extern "C"
+void Delay_ms(uint64_t delay){
+    mcu_drivers.MCU_delay_ms(delay);
+}

@@ -1,12 +1,15 @@
 #include <string.h>
 #include "HC05.h"
 #include "MCU_Drivers.h"
+#include "uartstdio.h"
 
 static const char* BaudrateToString(unsigned long baud);
 
 HC05::HC05()
 {
     _bufsize = sizeof(_buffer)/sizeof(char);
+    char buffer[BUFFER_SIZE] = {0};
+    memcpy(_buffer,buffer,BUFFER_SIZE);
 }
 
 static const unsigned long rates[] =
@@ -19,15 +22,14 @@ unsigned long HC05::findBaud()
     int numRates = sizeof(rates)/sizeof(unsigned long);
     int response = false;
     int recvd = 0;
-    //char _buffer[128];
 
     McuDrivers.MCU_delay_ms(100);
     for(int rn = 0; rn < numRates; rn++)
     {
-        UARTStdioConfig(2, rates[rn], SysCtlClockGet());
+        //UARTStdioConfig(2, rates[rn], SysCtlClockGet());
         //trying
         UARTwrite("AT\r\n", 4);
-        recvd = UARTgets(_buffer,_bufsize);
+        recvd = UARTgetStringWithTimeout(_buffer,_bufsize,20);
         if (recvd > 0)
         {
             //found
@@ -64,7 +66,7 @@ int HC05::cmd(const char* cmd, unsigned long timeout)
         //            of a multiline response before the OK is received.
         //            The return would incorrectly indicate an error (no
         //            OK response).
-        recvd = UARTgets(_buffer,_bufsize);
+        recvd = UARTgetStringWithTimeout(_buffer,_bufsize,20);
         if (recvd > 0)
         {
             //there is data
@@ -111,7 +113,7 @@ void HC05::setBaud(unsigned long baud)
 
     UARTwrite("\r\n",2);
 
-    recvd = UARTgets(_buffer,_bufsize);
+    recvd = UARTgetStringWithTimeout(_buffer,_bufsize,20);
     if (recvd > 0)
     {
         //there is data
@@ -133,7 +135,7 @@ void HC05::flush()
 
 int HC05::read()
 {
-    return UARTgets(_buffer,_bufsize);
+    return UARTgetStringWithTimeout(_buffer,_bufsize,20);
 }
 
 bool HC05::connected()
@@ -150,7 +152,7 @@ void HC05::write(uint8_t byte)
         // No Connection, waiting...
         return;
     }
-    UARTputc(byte);
+    UARTputChar(byte);
 }
 
 
@@ -180,4 +182,3 @@ const char* BaudrateToString(unsigned long baud){
     }
     return nullptr;
 }
-

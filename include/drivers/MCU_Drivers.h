@@ -83,5 +83,5 @@ public:
 };
 
 extern MCU_Drivers mcu_drivers;
-
+extern "C" void Delay_ms(uint64_t delay);
 #endif

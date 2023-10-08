@@ -12,6 +12,7 @@
 #include "MCU_Drivers.h"
 #include "uartstdio.h"
 
+#define BUFFER_SIZE 32
 
 /*
  * This macro must be defined even if you are using a software serial
@@ -36,7 +37,7 @@ public:
 private:
     int _statePin;
     int _bufsize;
-    char _buffer[32];
+    char _buffer[BUFFER_SIZE];
 };
 
 #endif  // HC05_h

@@ -36,13 +36,14 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/uart.h"
 #include "uartstdio.h"
-
 //*****************************************************************************
 //
 //! \addtogroup uartstdio_api
 //! @{
 //
 //*****************************************************************************
+
+extern void Delay_ms(uint64_t delay);
 
 //*****************************************************************************
 //
@@ -51,18 +52,6 @@
 //
 //*****************************************************************************
 #ifdef UART_BUFFERED
-
-//*****************************************************************************
-//
-// This global controls whether or not we are echoing characters back to the
-// transmitter.  By default, echo is enabled but if using this module as a
-// convenient method of implementing a buffered serial interface over which
-// you will be running an application protocol, you are likely to want to
-// disable echo by calling UARTEchoSet(false).
-//
-//*****************************************************************************
-static bool g_bDisableEcho;
-
 //*****************************************************************************
 //
 // Output ring buffer.  Buffer is full if g_ui32UARTTxReadIndex is one ahead of
@@ -382,7 +371,6 @@ UARTStdioConfig(uint32_t ui32PortNum, uint32_t ui32Baud, uint32_t ui32SrcClock)
     // Flush both the buffers.
     //
     UARTFlushRx();
-    UARTFlushTx(true);
 
     //
     // Remember which interrupt we are dealing with.
@@ -399,7 +387,6 @@ UARTStdioConfig(uint32_t ui32PortNum, uint32_t ui32Baud, uint32_t ui32SrcClock)
     MAP_UARTIntEnable(g_ui32Base, UART_INT_RX | UART_INT_RT);
     MAP_IntEnable(g_ui32UARTInt[ui32PortNum]);
 #endif
-
     //
     // Enable the UART operation.
     //
@@ -514,15 +501,6 @@ UARTwrite(const char *pcBuf, uint32_t ui32Len)
     //
     for(uIdx = 0; uIdx < ui32Len; uIdx++)
     {
-        //
-        // If the character to the UART is \n, then add a \r before it so that
-        // \n is translated to \n\r in the output.
-        //
-        if(pcBuf[uIdx] == '\n')
-        {
-            MAP_UARTCharPut(g_ui32Base, '\r');
-        }
-
         //
         // Send the character to the UART output.
         //
@@ -884,7 +862,7 @@ UARTvprintf(const char *pcString, va_list vaArgP)
         //
         // Write this portion of the string.
         //
-        UARTwrite(pcString, ui32Idx);
+        UARTputBuff(pcString, ui32Idx);
 
         //
         // Skip the portion of the string that was written.
@@ -968,7 +946,7 @@ again:
                     //
                     // Print out the character.
                     //
-                    UARTwrite((char *)&ui32Value, 1);
+                    UARTputBuff((char *)&ui32Value, 1);
 
                     //
                     // This command has been handled.
@@ -1048,7 +1026,7 @@ again:
                     //
                     // Write the string.
                     //
-                    UARTwrite(pcStr, ui32Idx);
+                    UARTputBuff(pcStr, ui32Idx);
 
                     //
                     // Write any required padding spaces
@@ -1058,7 +1036,7 @@ again:
                         ui32Count -= ui32Idx;
                         while(ui32Count--)
                         {
-                            UARTwrite(" ", 1);
+                            UARTputBuff(" ", 1);
                         }
                     }
 
@@ -1206,7 +1184,7 @@ convert:
                     //
                     // Write the string.
                     //
-                    UARTwrite(pcBuf, ui32Pos);
+                    UARTputBuff(pcBuf, ui32Pos);
 
                     //
                     // This command has been handled.
@@ -1222,7 +1200,7 @@ convert:
                     //
                     // Simply write a single %.
                     //
-                    UARTwrite(pcString - 1, 1);
+                    UARTputBuff(pcString - 1, 1);
 
                     //
                     // This command has been handled.
@@ -1238,7 +1216,7 @@ convert:
                     //
                     // Indicate an error.
                     //
-                    UARTwrite("ERROR", 5);
+                    UARTputBuff("ERROR", 5);
 
                     //
                     // This command has been handled.
@@ -1507,34 +1485,6 @@ UARTFlushTx(bool bDiscard)
 
 //*****************************************************************************
 //
-//! Enables or disables echoing of received characters to the transmitter.
-//!
-//! \param bEnable must be set to \b true to enable echo or \b false to
-//! disable it.
-//!
-//! This function, available only when the module is built to operate in
-//! buffered mode using \b UART_BUFFERED, may be used to control whether or not
-//! received characters are automatically echoed back to the transmitter.  By
-//! default, echo is enabled and this is typically the desired behavior if
-//! the module is being used to support a serial command line.  In applications
-//! where this module is being used to provide a convenient, buffered serial
-//! interface over which application-specific binary protocols are being run,
-//! however, echo may be undesirable and this function can be used to disable
-//! it.
-//!
-//! \return None.
-//
-//*****************************************************************************
-#if defined(UART_BUFFERED) || defined(DOXYGEN)
-void
-UARTEchoSet(bool bEnable)
-{
-    g_bDisableEcho = !bEnable;
-}
-#endif
-
-//*****************************************************************************
-//
 //! Handles UART interrupts.
 //!
 //! This function handles interrupts from the UART.  It will copy data from the
@@ -1559,26 +1509,6 @@ UARTStdioIntHandler(void)
     //
     ui32Ints = MAP_UARTIntStatus(g_ui32Base, true);
     MAP_UARTIntClear(g_ui32Base, ui32Ints);
-
-    //
-    // Are we being interrupted because the TX FIFO has space available?
-    //
-    if(ui32Ints & UART_INT_TX)
-    {
-        //
-        // Move as many bytes as we can into the transmit FIFO.
-        //
-        UARTPrimeTransmit(g_ui32Base);
-
-        //
-        // If the output buffer is empty, turn off the transmit interrupt.
-        //
-        if(TX_BUFFER_EMPTY)
-        {
-            MAP_UARTIntDisable(g_ui32Base, UART_INT_TX);
-        }
-    }
-
     //
     // Are we being interrupted due to a received character?
     //
@@ -1594,90 +1524,6 @@ UARTStdioIntHandler(void)
             //
             i32Char = MAP_UARTCharGetNonBlocking(g_ui32Base);
             cChar = (unsigned char)(i32Char & 0xFF);
-
-            //
-            // If echo is disabled, we skip the various text filtering
-            // operations that would typically be required when supporting a
-            // command line.
-            //
-            if(!g_bDisableEcho)
-            {
-                //
-                // Handle backspace by erasing the last character in the
-                // buffer.
-                //
-                if(cChar == '\b')
-                {
-                    //
-                    // If there are any characters already in the buffer, then
-                    // delete the last.
-                    //
-                    if(!RX_BUFFER_EMPTY)
-                    {
-                        //
-                        // Rub out the previous character on the users
-                        // terminal.
-                        //
-                        UARTwrite("\b \b", 3);
-
-                        //
-                        // Decrement the number of characters in the buffer.
-                        //
-                        if(g_ui32UARTRxWriteIndex == 0)
-                        {
-                            g_ui32UARTRxWriteIndex = UART_RX_BUFFER_SIZE - 1;
-                        }
-                        else
-                        {
-                            g_ui32UARTRxWriteIndex--;
-                        }
-                    }
-
-                    //
-                    // Skip ahead to read the next character.
-                    //
-                    continue;
-                }
-
-                //
-                // If this character is LF and last was CR, then just gobble up
-                // the character since we already echoed the previous CR and we
-                // don't want to store 2 characters in the buffer if we don't
-                // need to.
-                //
-                if((cChar == '\n') && bLastWasCR)
-                {
-                    bLastWasCR = false;
-                    continue;
-                }
-
-                //
-                // See if a newline or escape character was received.
-                //
-                if((cChar == '\r') || (cChar == '\n') || (cChar == 0x1b))
-                {
-                    //
-                    // If the character is a CR, then it may be followed by an
-                    // LF which should be paired with the CR.  So remember that
-                    // a CR was received.
-                    //
-                    if(cChar == '\r')
-                    {
-                        bLastWasCR = 1;
-                    }
-
-                    //
-                    // Regardless of the line termination character received,
-                    // put a CR in the receive buffer as a marker telling
-                    // UARTgets() where the line ends.  We also send an
-                    // additional LF to ensure that the local terminal echo
-                    // receives both CR and LF.
-                    //
-                    cChar = '\r';
-                    UARTwrite("\n", 1);
-                }
-            }
-
             //
             // If there is space in the receive buffer, put the character
             // there, otherwise throw it away.
@@ -1690,30 +1536,52 @@ UARTStdioIntHandler(void)
                 g_pcUARTRxBuffer[g_ui32UARTRxWriteIndex] =
                     (unsigned char)(i32Char & 0xFF);
                 ADVANCE_RX_BUFFER_INDEX(g_ui32UARTRxWriteIndex);
-
-                //
-                // If echo is enabled, write the character to the transmit
-                // buffer so that the user gets some immediate feedback.
-                //
-                if(!g_bDisableEcho)
-                {
-                    UARTwrite((const char *)&cChar, 1);
-                }
             }
         }
-
-        //
-        // If we wrote anything to the transmit buffer, make sure it actually
-        // gets transmitted.
-        //
-        UARTPrimeTransmit(g_ui32Base);
-        MAP_UARTIntEnable(g_ui32Base, UART_INT_TX);
     }
 }
 #endif
 
-void UARTputc(uint8_t c){
-    UARTCharPut(g_ui32Base, c);
+void UARTputBuff(const char *pcBuf, uint16_t len){
+    int32_t result = 0;
+    while (len--){
+        UARTCharPutNonBlocking(g_ui32Base, *(pcBuf++));
+    }
+}
+
+void UARTputChar(unsigned char ucData){
+    UARTCharPutNonBlocking(g_ui32Base, ucData);
+}
+
+bool UARTgetCharWithTimeout(char *pcBuf, uint32_t timeout_ms){
+    uint32_t timeoutCounter = timeout_ms;
+    int32_t result = 0;
+    while (timeout_ms){
+        result = UARTCharGetNonBlocking(g_ui32Base);
+        if(result == -1){
+            result = false;
+            Delay_ms(timeout_ms);
+            if(timeoutCounter--)
+                break;
+            continue;
+        }
+        else{
+            *pcBuf = result;
+            result = true;
+            break;
+        }
+    }
+    return result;
+}
+
+uint16_t UARTgetStringWithTimeout(char *pcBuf, uint32_t ui32Len, uint32_t timeout_ms){
+    int32_t result = 0;
+    while (ui32Len--){
+        result = UARTgetCharWithTimeout(pcBuf++, timeout_ms);
+        if(!result)
+            break;
+    }
+    return result;
 }
 
 //*****************************************************************************

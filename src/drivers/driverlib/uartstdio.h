@@ -26,7 +26,7 @@
 #define __UARTSTDIO_H__
 
 #include <stdarg.h>
-
+#include <stdbool.h>
 //*****************************************************************************
 //
 // If building with a C++ compiler, make all of the definitions in this header
@@ -44,11 +44,11 @@ extern "C"
 // the transmit and receive buffers respectively.
 //
 //*****************************************************************************
-#undef UART_BUFFERED
+#define UART_BUFFERED
 
 #ifdef UART_BUFFERED
 #ifndef UART_RX_BUFFER_SIZE
-#define UART_RX_BUFFER_SIZE     10
+#define UART_RX_BUFFER_SIZE     128
 #endif
 #ifndef UART_TX_BUFFER_SIZE
 #define UART_TX_BUFFER_SIZE     10
@@ -60,21 +60,25 @@ extern "C"
 // Prototypes for the APIs.
 //
 //*****************************************************************************
-extern void UARTStdioConfig(uint32_t ui32Port, uint32_t ui32Baud,
-                            uint32_t ui32SrcClock);
+
 extern int UARTgets(char *pcBuf, uint32_t ui32Len);
 extern unsigned char UARTgetc(void);
-extern void UARTprintf(const char *pcString, ...);
 extern void UARTvprintf(const char *pcString, va_list vaArgP);
 extern int UARTwrite(const char *pcBuf, uint32_t ui32Len);
-void UARTputc(uint8_t c);
+
+extern void UARTprintf(const char *pcString, ...);
+extern void UARTputBuff(const char *pcBuf, uint16_t len);
+extern void UARTputChar(unsigned char ucData);
+extern bool UARTgetCharWithTimeout(char *pcBuf, uint32_t timeout_ms);
+extern uint16_t UARTgetStringWithTimeout(char *pcBuf, uint32_t ui32Len, uint32_t timeout_ms);
+extern void UARTStdioConfig(uint32_t ui32Port, uint32_t ui32Baud,
+                            uint32_t ui32SrcClock);
 #ifdef UART_BUFFERED
 extern int UARTPeek(unsigned char ucChar);
 extern void UARTFlushTx(bool bDiscard);
 extern void UARTFlushRx(void);
 extern int UARTRxBytesAvail(void);
 extern int UARTTxBytesFree(void);
-extern void UARTEchoSet(bool bEnable);
 #endif
 
 //*****************************************************************************
